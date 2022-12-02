@@ -1,5 +1,5 @@
 pipeline{
-    
+
     tools{
         jdk 'Java'
         maven 'mymaven'
@@ -7,7 +7,6 @@ pipeline{
     
     agent any 
     
-        
     stages {
         
         stage('Git Checkout'){
@@ -19,10 +18,28 @@ pipeline{
                     git branch: 'main', url: 'https://github.com/9500073161/demo-counter-app.git'
                 }
             }
+        }
+        stage('UNIT testing'){
             
-           } 
-        
-          stage('Maven build'){
+            steps{
+                
+                script{
+                    
+                    sh 'mvn test'
+                }
+            }
+        }
+        stage('Integration testing'){
+            
+            steps{
+                
+                script{
+                    
+                    sh 'mvn verify -DskipUnitTests'
+                }
+            }
+        }
+        stage('Maven build'){
             
             steps{
                 
@@ -32,9 +49,30 @@ pipeline{
                 }
             }
         }
-        
-       }
-        
-             
+        stage('Static code analysis'){
+            
+            steps{
+                
+                script{
+                    
+                    withSonarQubeEnv(credentialsId: 'sonar-api') {
+                        
+                        sh 'mvn clean package sonar:sonar'
+                    }
+                   }
+                    
+                }
+            }
+            stage('Quality Gate Status'){
+                
+                steps{
+                    
+                    script{
+                        
+                        waitForQualityGate abortPipeline: false, credentialsId: 'sonar-api'
+                    }
+                }
+            }
+        }
         
 }
