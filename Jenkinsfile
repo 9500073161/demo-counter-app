@@ -1,12 +1,13 @@
 pipeline{
     
-    agent any 
-    
-    tools { 
-      maven 'MAVEN_HOME' 
-      jdk 'JAVA_HOME' 
+    tools{
+        jdk 'Java'
+        maven 'mymaven'
     }
     
+    agent any 
+    
+        
     stages {
         
         stage('Git Checkout'){
